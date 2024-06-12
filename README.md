@@ -13,8 +13,7 @@ print(await reader.sheet_size())
 
 ## Installation
 
-With poetry: `poetry add git+https://github.com/prostomarkeloff/aioexcel.git`
-
+With poetry: `poetry add git+https://github.com/prostomarkeloff/aioexcel.git`\
 With pip: `pip install git+https://github.com/prostomarkeloff/aioexcel.git@master`
 
 
