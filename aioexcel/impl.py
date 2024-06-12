@@ -41,8 +41,6 @@ class ExcelReader:
 
     async def read_cell(self, column: str, row: int, sheet: typing.Optional[str] = None) -> typing.Any:
         """
-        ```
-        await reader.read_cell("A", 5)
 
         :param column: number of a column
         :param row: number of a row
