@@ -29,7 +29,9 @@ class ExcelReader:
         self._sheet: typing.Optional[str] = sheet
 
         self._wb: Workbook = load_workbook(self._file)
-        self._interface: OpenpyxlInterface = OpenpyxlInterface(wb=self._wb, use_cache=True)
+        self._interface: OpenpyxlInterface = OpenpyxlInterface(
+            wb=self._wb, use_cache=True
+        )
 
     def _calc_sheet(self, sheet: typing.Optional[str]) -> str:
         if sheet is None:
