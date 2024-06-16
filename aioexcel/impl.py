@@ -7,7 +7,11 @@ from efc.interfaces.iopenpyxl import OpenpyxlInterface
 
 
 class ExcelReader:
-    def __init__(self, file: typing.Union[str, pathlib.Path, bytes], sheet: typing.Optional[str] = None):
+    def __init__(
+        self,
+        file: typing.Union[str, pathlib.Path, bytes],
+        sheet: typing.Optional[str] = None,
+    ):
         """
         :param file: name of a file or bytes
         :param sheet: name of the default sheet to access when a sheet is not specified
@@ -42,11 +46,19 @@ class ExcelReader:
             sheet = self._sheet or self._wb.sheetnames[0]
         return sheet
 
-    async def read_cell(self, column: str, row: int, *, calculate: typing.Optional[bool] = False, sheet: typing.Optional[str] = None) -> typing.Any:
+    async def read_cell(
+        self,
+        column: str,
+        row: int,
+        *,
+        calculate=False,
+        sheet: typing.Optional[str] = None,
+    ) -> typing.Any:
         """
 
         :param column: number of a column
         :param row: number of a row
+        :param calculate: shall we calculate a formula?
         :param sheet: name of a sheet
         :return: value of a cell
         """
@@ -57,8 +69,13 @@ class ExcelReader:
         else:
             return self._wb[sheet][cell_name].value
 
-    async def read_cells(self, column: str, from_: int, to: int, sheet: typing.Optional[str] = None) -> typing.List[
-        typing.Any]:
+    async def read_cells(
+        self,
+        column: str,
+        from_: int,
+        to: int,
+        sheet: typing.Optional[str] = None,
+    ) -> typing.List[typing.Any]:
         """
 
         :param column: name of a column
@@ -70,7 +87,9 @@ class ExcelReader:
         sheet = await self._preparation(sheet)
         return [v[0].value for v in self._wb[sheet][f"{column}{from_}":f"{column}{to}"]]
 
-    async def first_column_values(self, sheet: typing.Optional[str] = None) -> typing.List[typing.Any]:
+    async def first_column_values(
+        self, sheet: typing.Optional[str] = None
+    ) -> typing.List[typing.Any]:
         """
         :param sheet: name of a sheet
         :return: list of values from the first column
@@ -78,7 +97,9 @@ class ExcelReader:
         sheet = await self._preparation(sheet)
         return [x.value for x in list(self._wb[sheet].columns)[0]]
 
-    async def last_column_values(self, sheet: typing.Optional[str] = None) -> typing.List[typing.Any]:
+    async def last_column_values(
+        self, sheet: typing.Optional[str] = None
+    ) -> typing.List[typing.Any]:
         """
         :param sheet: name of a sheet
         :return: list of values from the last column
@@ -86,7 +107,9 @@ class ExcelReader:
         sheet = await self._preparation(sheet)
         return [x.value for x in list(self._wb[sheet].columns)[-1]]
 
-    async def sheet_size(self, sheet: typing.Optional[str] = None) -> typing.Tuple[int, int]:
+    async def sheet_size(
+        self, sheet: typing.Optional[str] = None
+    ) -> typing.Tuple[int, int]:
         """
 
         :param sheet: name of a sheet
@@ -94,4 +117,3 @@ class ExcelReader:
         """
         sheet = await self._preparation(sheet)
         return len(list(self._wb[sheet].rows)), len(list(self._wb[sheet].columns))
-
