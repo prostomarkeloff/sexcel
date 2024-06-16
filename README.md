@@ -7,8 +7,10 @@ Example:
 from aioexcel import ExcelReader
 
 reader = ExcelReader("example.xlsx")
-print(await reader.read_cell("A", 3))
-print(await reader.sheet_size())
+await reader.read_into_memory()
+
+print(reader.read_cell("A", 3))
+print(reader.sheet_size())
 ```
 
 ## Installation
