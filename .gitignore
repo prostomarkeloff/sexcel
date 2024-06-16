@@ -155,6 +155,8 @@ dmypy.json
 cython_debug/
 
 poetry.lock
+dist
+sample.xlsx
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

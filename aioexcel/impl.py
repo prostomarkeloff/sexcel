@@ -3,6 +3,7 @@ from aiofile import AIOFile
 from io import BytesIO
 import pathlib
 import typing
+from efc.interfaces.iopenpyxl import OpenpyxlInterface
 
 
 class ExcelReader:
@@ -20,6 +21,7 @@ class ExcelReader:
         self._sheet = sheet
 
         self._wb = None
+        self._interface: OpenpyxlInterface = None
 
     async def _init_wb(self):
         if self._file:
@@ -30,6 +32,7 @@ class ExcelReader:
                 # openpyxl can't read from bytes directly
                 excel_file = BytesIO(r)
                 self._wb = load_workbook(excel_file)
+        self._interface = OpenpyxlInterface(wb=self._wb, use_cache=True)
 
     async def _preparation(self, sheet: typing.Optional[str]) -> str:
         if self._wb is None:
@@ -39,7 +42,7 @@ class ExcelReader:
             sheet = self._sheet or self._wb.sheetnames[0]
         return sheet
 
-    async def read_cell(self, column: str, row: int, sheet: typing.Optional[str] = None) -> typing.Any:
+    async def read_cell(self, column: str, row: int, *, calculate: typing.Optional[bool] = False, sheet: typing.Optional[str] = None) -> typing.Any:
         """
 
         :param column: number of a column
@@ -48,9 +51,14 @@ class ExcelReader:
         :return: value of a cell
         """
         sheet = await self._preparation(sheet)
-        return self._wb[sheet][f"{column}{row}"].value
+        cell_name = f"{column}{row}"
+        if calculate is True:
+            return self._interface.calc_cell(cell_name, sheet)
+        else:
+            return self._wb[sheet][cell_name].value
 
-    async def read_cells(self, column: str, from_: int, to: int, sheet: typing.Optional[str] = None) -> typing.List[typing.Any]:
+    async def read_cells(self, column: str, from_: int, to: int, sheet: typing.Optional[str] = None) -> typing.List[
+        typing.Any]:
         """
 
         :param column: name of a column
@@ -86,3 +94,4 @@ class ExcelReader:
         """
         sheet = await self._preparation(sheet)
         return len(list(self._wb[sheet].rows)), len(list(self._wb[sheet].columns))
+
