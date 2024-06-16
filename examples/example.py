@@ -1,12 +1,10 @@
-from aioexcel import ExcelReader
-import asyncio
-import aiohttp
+from sexcel import ExcelReader
+import requests
 
 
-async def from_file():
+def from_file():
     reader = ExcelReader("../sample.xlsx")
     # before accessing the values we have to read an excel file into memory
-    await reader.read_into_memory()
     print(reader.read_cell("A", 3))
     print(reader.sheet_size())
 
@@ -17,14 +15,11 @@ async def from_file():
     print(reader.read_cell("E", 2, calculate=True))
 
 
-async def from_http():
+def from_http():
     url = "https://filesamples.com/samples/document/xlsx/sample3.xlsx"
-    client = aiohttp.ClientSession()
-    file = await (await client.get(url)).read()
-    await client.close()
+    file = requests.get(url).content
     reader = ExcelReader(file)
-    await reader.read_into_memory()
     print(reader.read_cell("D", 4))
 
 
-asyncio.run(from_file())
+from_file()

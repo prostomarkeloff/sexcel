@@ -1,6 +1,4 @@
-import openpyxl
 from openpyxl import Workbook, load_workbook
-from aiofile import AIOFile
 from io import BytesIO
 import pathlib
 import typing
@@ -10,7 +8,7 @@ from efc.interfaces.iopenpyxl import OpenpyxlInterface
 class ExcelReader:
     def __init__(
         self,
-        file: typing.Union[str, pathlib.Path, bytes],
+        file: typing.Union[str, pathlib.Path, bytes, BytesIO],
         sheet: typing.Optional[str] = None,
     ):
         """
@@ -20,45 +18,24 @@ class ExcelReader:
         self._file: BytesIO
         if isinstance(file, bytes):
             self._file = BytesIO(file)
+        elif isinstance(file, BytesIO):
+            self._file = file
         else:
-            self._file = None
-            self._path: typing.Union[str, pathlib.Path] = file
+            path = file
+            with open(path, "rb") as f:
+                r = f.read()
+                self._file = BytesIO(r)
 
         self._sheet: typing.Optional[str] = sheet
 
-        self._wb: typing.Optional[Workbook] = None
-        self._interface: typing.Optional[OpenpyxlInterface] = None
-
-        self._prepared: bool = False
-
-    async def read_into_memory(self):
-        if self._prepared:
-            return
-
-        if self._file:
-            self._wb = load_workbook(self._file)
-        else:
-            async with AIOFile(self._path, "rb", encoding="ISO-8859-1") as afp:
-                r = await afp.read()
-                # openpyxl can't read from bytes directly
-                excel_file = BytesIO(r)
-                self._wb = load_workbook(excel_file)
-
-        self._interface = OpenpyxlInterface(wb=self._wb, use_cache=True)
-        self._prepared = True
+        self._wb: Workbook = load_workbook(self._file)
+        self._interface: OpenpyxlInterface = OpenpyxlInterface(wb=self._wb, use_cache=True)
 
     def _calc_sheet(self, sheet: typing.Optional[str]) -> str:
         if sheet is None:
             # if sheet is not specified we read from the default or from the first in a file
             sheet = self._sheet or self._wb.sheetnames[0]
         return sheet
-
-    def _is_prepared(self):
-        if self._prepared is False:
-            raise RuntimeError(
-                "ExcelReader couldn't be used without reading an excel file into memory\n You'd better "
-                "call `await reader.read_into_memory()` before calling other methods"
-            )
 
     def read_cell(
         self,
@@ -76,7 +53,6 @@ class ExcelReader:
         :param sheet: name of a sheet
         :return: value of a cell
         """
-        self._is_prepared()
 
         sheet = self._calc_sheet(sheet)
         cell_name = f"{column}{row}"
@@ -100,7 +76,6 @@ class ExcelReader:
         :param sheet: name of a sheet
         :return: list of values of cells in the defined range
         """
-        self._is_prepared()
 
         sheet = self._calc_sheet(sheet)
         return [v[0].value for v in self._wb[sheet][f"{column}{from_}":f"{column}{to}"]]
@@ -112,7 +87,6 @@ class ExcelReader:
         :param sheet: name of a sheet
         :return: list of values from the first column
         """
-        self._is_prepared()
 
         sheet = self._calc_sheet(sheet)
         return [x.value for x in list(self._wb[sheet].columns)[0]]
@@ -124,7 +98,6 @@ class ExcelReader:
         :param sheet: name of a sheet
         :return: list of values from the last column
         """
-        self._is_prepared()
 
         sheet = self._calc_sheet(sheet)
         return [x.value for x in list(self._wb[sheet].columns)[-1]]
@@ -135,7 +108,6 @@ class ExcelReader:
         :param sheet: name of a sheet
         :return: a tuple where the first element is a count of rows in a sheet and the second is a number of columns inthere
         """
-        self._is_prepared()
 
         sheet = self._calc_sheet(sheet)
         return len(list(self._wb[sheet].rows)), len(list(self._wb[sheet].columns))

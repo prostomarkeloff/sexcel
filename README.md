@@ -1,13 +1,12 @@
-# aioexcel
+# sexcel
 
-A simple library to work with xlsx files in an asynchronous manner
+Work with excel like an incel.
 
 Example: 
 ```python
-from aioexcel import ExcelReader
+from sexcel import ExcelReader
 
 reader = ExcelReader("example.xlsx")
-await reader.read_into_memory()
 
 print(reader.read_cell("A", 3))
 print(reader.sheet_size())
@@ -15,8 +14,8 @@ print(reader.sheet_size())
 
 ## Installation
 
-With poetry: `poetry add git+https://github.com/prostomarkeloff/aioexcel.git`\
-With pip: `pip install git+https://github.com/prostomarkeloff/aioexcel.git@master`
+With poetry: `poetry add git+https://github.com/prostomarkeloff/sexcel.git`\
+With pip: `pip install git+https://github.com/prostomarkeloff/sexcel.git@master`
 
 
 This library was sponsored by our lord [timoniq](https://github.com/timoniq).
